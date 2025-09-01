@@ -3,8 +3,9 @@ const cors = require("cors");
 
 const app = express();
 
-var corsOptions = {
-  origin: "http://localhost:8081"
+const corsOptions = {
+  origin: true, // Reflects the request origin (recommended for dev or internal apps)
+  credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -17,13 +18,30 @@ app.use(express.urlencoded({ extended: true }));
 
 const db = require("./app/models");
 
-db.sequelize.sync()
-  .then(() => {
-    console.log("Synced db.");
-  })
-  .catch((err) => {
-    console.log("Failed to sync db: " + err.message);
-  });
+const connectWithRetry = () => {
+  console.log("Trying to connect to the database...");
+
+  db.sequelize.sync()
+    .then(() => {
+      console.log("✅ Synced db.");
+      startServer(); // start app after DB is connected
+    })
+    .catch((err) => {
+      console.error("❌ Failed to sync db:", err.message);
+      console.log("🔁 Retrying in 5 seconds...");
+      setTimeout(connectWithRetry, 5000);
+    });
+};
+
+const startServer = () => { // assuming you export your Express app from app.js
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
+};
+
+connectWithRetry();
+
 
 // // drop the table if it already exists
 // db.sequelize.sync({ force: true }).then(() => {
@@ -38,7 +56,4 @@ app.get("/", (req, res) => {
 require("./app/routes/turorial.routes")(app);
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+

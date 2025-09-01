@@ -1,0 +1,29 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: test-app-frontend
+  namespace: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-app-frontend
+  
+  template:
+    metadata:
+      name: test-app-frontend-pods
+      labels:
+        app: test-app-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: amitjisharma/test-react-client:latest
+          ports:
+            - containerPort: 8081
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 200m
+              memory: 728Mi

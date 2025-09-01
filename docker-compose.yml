@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: testdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network     # ← add this line
+
+  backend:
+    build:
+      context: ./node-express-server
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: 123456
+      DB_NAME: testdb
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./react-client
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge

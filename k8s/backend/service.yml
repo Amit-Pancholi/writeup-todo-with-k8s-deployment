@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  backend
+  namespace: test-app
+spec:
+  selector:
+    app:  test-app-backend
+  ports:
+  - name:  main-expose-port
+    port:  8080
+    targetPort:  8080

@@ -1,0 +1,29 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: test-app-backend
+  namespace: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-app-backend
+  
+  template:
+    metadata:
+      name: test-app-backend-pods
+      labels:
+        app: test-app-backend
+    spec:
+      containers:
+        - name: backend
+          image: amitjisharma/test-node-server
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 372Mi

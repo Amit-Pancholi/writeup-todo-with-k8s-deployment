@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  frontend-service
+  namespace: test-app
+spec:
+  selector:
+    app:  test-app-frontend
+  ports:
+  - name:  main-expose-port
+    port:  8081
+    targetPort:  8081

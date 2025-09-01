@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app-db
+  namespace: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-app-db
+  template:
+    metadata:
+      labels:
+        app: test-app-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret-db
+                  key: MYSQL_ROOT_PASSWORD
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: secret-db
+                  key:  MYSQL_DATABASE
+          ports:
+            - containerPort: 3306
+          resources:
+            requests:
+              cpu: 300m
+              memory: 256Mi
+            limits:  # ✅ corrected typo
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: sql-data
+      volumes:
+        - name: sql-data
+          persistentVolumeClaim:  # ✅ corrected casing
+            claimName: mysql-pvc
